@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hugmind — Business Plan Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  :root {
+    --gold:#C9A84C; --gold-dim:rgba(201,168,76,0.10);
+    --bg:#0B0B0F; --card:#131318; --border:#1e1e26;
+    --text:#E4E4E8; --muted:#7a7a88;
+    --green:#22C55E; --green-dim:rgba(34,197,94,0.10);
+    --blue:#3B82F6; --blue-dim:rgba(59,130,246,0.10);
+    --violet:#8B5CF6; --violet-dim:rgba(139,92,246,0.10);
+    --rose:#F43F5E; --rose-dim:rgba(244,63,94,0.10);
+    --amber:#F59E0B; --amber-dim:rgba(245,158,11,0.10);
+    --cyan:#06B6D4;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;line-height:1.5;}
+
+  /* NAV */
+  .nav{position:sticky;top:0;z-index:100;background:rgba(11,11,15,0.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;height:52px;gap:24px;}
+  .nav-brand{font-weight:800;font-size:15px;letter-spacing:2px;color:var(--gold);flex-shrink:0;}
+  .nav-links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;}
+  .nav-links::-webkit-scrollbar{display:none;}
+  .nav-links a{color:var(--muted);text-decoration:none;font-size:11px;font-weight:500;padding:6px 10px;border-radius:6px;white-space:nowrap;transition:all .15s;}
+  .nav-links a:hover,.nav-links a.hi{color:var(--text);background:rgba(255,255,255,.04);}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:28px 20px;}
+  .sec{margin-bottom:44px;scroll-margin-top:64px;padding-bottom:40px;border-bottom:1px solid var(--border);}
+  .sec-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .sec-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+  .sec-label{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
+  .sec-title{font-size:18px;font-weight:700;}
+
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  .g5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+  @media(max-width:900px){.g2,.g3,.g4,.g5{grid-template-columns:1fr;} .nav-links{display:none;}}
+  @media(min-width:901px) and (max-width:1100px){.g3,.g4,.g5{grid-template-columns:repeat(2,1fr);}}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;transition:border-color .15s;}
+  .card:hover{border-color:rgba(201,168,76,.18);}
+  .card h4{font-size:13px;font-weight:700;margin-bottom:6px;}
+  .card p,.card li{font-size:12px;color:var(--muted);line-height:1.6;}
+
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 20px;}
+  .stat-l{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+  .stat-v{font-size:26px;font-weight:800;line-height:1;}
+  .stat-s{font-size:11px;color:var(--muted);margin-top:3px;}
+
+  .tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+  .t-gold{background:var(--gold-dim);color:var(--gold);} .t-green{background:var(--green-dim);color:var(--green);}
+  .t-blue{background:var(--blue-dim);color:var(--blue);} .t-violet{background:var(--violet-dim);color:var(--violet);}
+  .t-rose{background:var(--rose-dim);color:var(--rose);} .t-amber{background:var(--amber-dim);color:var(--amber);}
+
+  .tw{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  thead th{background:rgba(201,168,76,.05);padding:10px 14px;text-align:left;font-weight:600;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);border-bottom:1px solid var(--border);white-space:nowrap;}
+  tbody td{padding:10px 14px;border-bottom:1px solid var(--border);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:rgba(255,255,255,.015);}
+
+  /* FUNNEL */
+  .funnel{display:flex;flex-direction:column;gap:8px;padding-left:24px;position:relative;}
+  .funnel::before{content:'';position:absolute;left:6px;top:16px;bottom:16px;width:2px;background:linear-gradient(180deg,var(--green),var(--blue),var(--gold),var(--violet),var(--rose));border-radius:2px;}
+  .f-step{position:relative;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px;}
+  .f-dot{position:absolute;left:-22px;top:16px;width:10px;height:10px;border-radius:50%;}
+  .f-step h5{font-size:12px;font-weight:700;margin-bottom:2px;}
+  .f-step p{font-size:11px;color:var(--muted);}
+
+  /* TODO */
+  .todo-phase{font-size:12px;font-weight:700;color:var(--gold);padding:14px 0 6px;display:flex;align-items:center;gap:8px;}
+  .todo-phase .ln{flex:1;height:1px;background:var(--border);}
+  .todo-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;cursor:pointer;transition:border-color .15s;user-select:none;}
+  .todo-item:hover{border-color:rgba(201,168,76,.2);}
+  .chk{flex-shrink:0;width:18px;height:18px;border-radius:5px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all .15s;}
+  .chk.on{background:var(--green);border-color:var(--green);}
+  .chk.on::after{content:'✓';color:#fff;font-size:11px;font-weight:700;}
+  .todo-item.done .t-text{text-decoration:line-through;color:var(--muted);}
+  .t-text{flex:1;font-size:12px;font-weight:500;}
+  .t-meta{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+  .t-owner{font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,.04);color:var(--muted);white-space:nowrap;}
+  .t-dead{font-size:10px;color:var(--muted);white-space:nowrap;}
+
+  /* MILESTONE */
+  .miles{display:flex;gap:0;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+  .m-item{flex:1;padding:12px 8px;text-align:center;background:var(--card);border-right:1px solid var(--border);}
+  .m-item:last-child{border-right:none;}
+  .m-item .mt{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+  .m-item .ml{font-size:11px;font-weight:700;}
+  .m-item .md{font-size:10px;color:var(--muted);}
+
+  .footer{text-align:center;padding:36px;border-top:1px solid var(--border);margin-top:24px;}
+  .footer p{font-size:11px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-brand">HUGMIND</div>
+  <nav class="nav-links">
+    <a href="#overview">Overview</a>
+    <a href="#team">Team</a>
+    <a href="#services">Services</a>
+    <a href="#funnel">Funnel</a>
+    <a href="#markets">Markets</a>
+    <a href="#acquisition">Acquisition</a>
+    <a href="#ops">Operations</a>
+    <a href="#financials">Financials</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="#principles">Principles</a>
+    <a href="#todo" class="hi" style="color:var(--gold);">To-Do</a>
+  </nav>
+</div>
+
+<div class="wrap">
+
+<!-- 1. OVERVIEW -->
+<div class="sec" id="overview">
+  <div class="sec-head">
+    <div class="sec-icon" style="background:var(--gold-dim);">📋</div>
+    <div><div class="sec-label">Overview</div><div class="sec-title">Hugmind at a Glance</div></div>
+  </div>
+  <div class="g4" style="margin-bottom:14px;">
+    <div class="stat"><div class="stat-l">Revenue Target</div><div class="stat-v" style="color:var(--gold);">150K</div><div class="stat-s">AED/mo by Month 12</div></div>
+    <div class="stat"><div class="stat-l">Recurring Mix</div><div class="stat-v" style="color:var(--green);">50%+</div><div class="stat-s">From recurring services</div></div>
+    <div class="stat"><div class="stat-l">Price Advantage</div><div class="stat-v" style="color:var(--blue);">40-60%</div><div class="stat-s">Below premium agencies</div></div>
+    <div class="stat"><div class="stat-l">Target Market</div><div class="stat-v" style="color:var(--violet);">200K+</div><div class="stat-s">New UAE licenses/year</div></div>
+  </div>
+  <div class="card">
+    <p><strong style="color:var(--gold);">Fixed-price, fixed-scope packages</strong> via SPP.co targeting UAE SMBs in their first 90 days. Dubai creative direction + India production (The Finch). Clients enter for one need, discover the full suite progressively. No scope creep, no hourly billing, no faceless agency.</p>
+  </div>
+</div>
+
+<!-- 2. TEAM -->
+<div class="sec" id="team">
+  <div class="sec-head">
+    <div class="sec-icon" style="background:var(--green-dim);">👤</div>
+    <div><div class="sec-label">Team</div><div class="sec-title">Core Team & Network</div></div>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <h4 style="color:var(--blue);">Damian Brennan — CEO</h4>
+      <p>19 yrs marketing (15 in UAE). Scaled Virtuzone AED 45M→110M. CRM, automation, AI, lead gen. Sales, partnerships, growth. Also CMO at TASC Outsourcing.</p>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--gold);">Luis Grolez — COO</h4>
+      <p>25+ yrs in brand, content & production across Australia and the Middle East. Co-founded two creative agencies. Led teams across brand strategy, visual comms & campaign production for McDonald's, Hugo Boss, Loro Piana, Nakheel, Aldar. Oversees operations, creative direction, QC & delivery.</p>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--green);">Ravi / The Finch — Dev Lead</h4>
+      <p>16-person India team: designers, frontend & .NET devs. 8-10 concurrent projects. Technical execution, SOPs, internal QC. <strong>Support:</strong> Nadeem (Pakistan dev), Adrian (Australia sales), Ambia (marketing ops).</p>
+    </div>
+  </div>
+</div>
+
+<!-- 3. SERVICES -->
+<div class="sec" id="services">
+  <div class="sec-head">
+    <div class="sec-icon" style="background:var(--violet-dim);">💼</div>
+    <div><div class="sec-label">Services & Pricing</div><div class="sec-title">Entry Packages + Recurring Revenue</div></div>
+  </div>
+  <div class="g2">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px;">ONE-TIME PACKAGES</div>
+      <div class="tw"><table>
+        <thead><tr><th>Service</th><th>AED</th><th>Days</th><th>Margin</th></tr></thead>
+        <tbody>
+          <tr><td>Starter Website (5pg)</td><td><strong>12,000</strong></td><td>14</td><td>82%</td></tr>
+          <tr><td>Landing Page</td><td><strong>4,500</strong></td><td>7</td><td>88%</td></tr>
+          <tr><td>Brand Identity</td><td><strong>7,500</strong></td><td>10</td><td>88%</td></tr>
+          <tr><td>Launch Bundle</td><td><strong>18,000</strong></td><td>21</td><td>80%</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:8px;">RECURRING SERVICES</div>
+      <div class="tw"><table>
+        <thead><tr><th>Service</th><th>AED/mo</th><th>Min.</th><th>Margin</th></tr></thead>
+        <tbody>
+          <tr><td>SEO Growth</td><td><strong>5,500</strong></td><td>6 mo</td><td>73%</td></tr>
+          <tr><td>Social Media Mgmt</td><td><strong>4,000</strong></td><td>3 mo</td><td>78%</td></tr>
+          <tr><td>Google Ads Mgmt</td><td><strong>4,500+spend</strong></td><td>3 mo</td><td>76%</td></tr>
+          <tr><td>Digital Growth Bundle</td><td><strong>12,000</strong></td><td>6 mo</td><td>75%</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. FUNNEL -->
+<div class="sec" id="funnel">
+  <div class="sec-head">
+    <div class="sec-icon" style="background:var(--amber-dim);">🔺</div>
+    <div><div class="sec-label">Sales Funnel</div><div class="sec-title">The Upsell Ladder</div></div>
+  </div>
+  <div class="funnel">
+    <div class="f-step"><div class="f-dot" style="background:var(--green);"></div><span class="tag t-green">Free</span> <h5>Lead Magnet / Mini Audit</h5><p>Industry PDF, checklist, 15-min consult. Zero commitment.</p></div>
+    <div class="f-step"><div class="f-dot" style="background:var(--blue);"></div><span class="tag t-blue">Entry</span> <h5>Single-Task Project</h5><p>Logo, landing page, social package. Low barrier, high trust.</p></div>
+    <div class="f-step"><div class="f-dot" style="background:var(--gold);"></div><span class="tag t-gold">Upsell</span> <h5>Bundled Services</h5><p>"We also do websites..." Natural reveal after trust is built.</p></div>
+    <div class="f-step"><div class="f-dot" style="background:var(--violet);"></div><span class="tag t-violet">Retainer</span> <h5>Full-Service Monthly</h5><p>Website + brand + social + marketing under one umbrella.</p></div>
+    <div class="f-step"><div class="f-dot" style="background:var(--rose);"></div><span class="tag t-rose">Hidden</span> <h5>AI Consulting</h5><p>Process auditing with AI. Only for locked-in clients, Phase 3+.</p></div>
+  </div>
+</div>
+
+<!-- 5. MARKETS -->
+<div class="sec" id="markets">
+  <div class="sec-head">
+    <div class="sec-icon" style="background:rgba(6,182,212,.1);">🎯</div>
+    <div><div class="sec-label">Target Markets</div><div class="sec-title">Priority Segments (UAE/GCC)</div></div>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th></th><th>Segment</th><th>Why Now</th><th>Advantage</th><th>Budget</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag t-gold">P1</span></td><td><strong>New Company Formations</strong></td><td>First 90 days: need everything</td><td>Damian's Virtuzone network</td><td>10K-50K + 3K-15K/mo</td></tr>
+        <tr><td><span class="tag t-blue">P2</span></td><td><strong>E-Commerce Startups</strong></td><td>Shopify, Google Ads, social</td><td>Proven packages, measurable ROI</td><td>5K-15K/mo</td></tr>
+        <tr><td><span class="tag t-green">P3</span></td><td><strong>F&B / Hospitality</strong></td><td>Social-driven, constant content</td><td>Luis's creative/video skills</td><td>3K-8K/mo</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin-top:10px;"><strong>Future (Phase 2+):</strong> Real Estate, Beauty & Wellness, Tech/SaaS, Healthcare, Education, Finance</p>
+</div>
+
+<!-- 6. ACQUISITION -->
+<div class="sec" id="acquisition">
+  <div class="sec-head">
+    <div class="sec-icon" style="background:var(--green-dim);">📣</div>
+    <div><div class="sec-label">Acquisition</div><div class="sec-title">Four Channels, Deployed in Sequence</div></div>
+  </div>
+  <div class="g4">
+    <div class="card" style="border-top:3px solid var(--green);"><span class="tag t-green">Wk 1-4</span><h4 style="margin-top:6px;">Network</h4><p>50 contacts, personal "founding client" offer (10-15% off). Target: 5 clients in 30 days.</p></div>
+    <div class="card" style="border-top:3px solid var(--blue);"><span class="tag t-blue">Mo 1-3</span><h4 style="margin-top:6px;">Partnerships</h4><p>Formation providers, consultants, co-working. 10-15% rev share. Target: 3 partners.</p></div>
+    <div class="card" style="border-top:3px solid var(--violet);"><span class="tag t-violet">Mo 1-6</span><h4 style="margin-top:6px;">Content</h4><p>10 blog posts, 3 case studies, LinkedIn 3x/wk, 1 YouTube/mo. Target: 50 leads/mo.</p></div>
+    <div class="card" style="border-top:3px solid var(--amber);"><span class="tag t-amber">Mo 3+</span><h4 style="margin-top:6px;">Paid Ads</h4><p>Google + LinkedIn + retargeting. AED 5-10K/mo. Only after LTV:CAC >3:1.</p></div>
+  </div>
+</div>
+
+<!-- 7. OPERATIONS -->
+<div class="sec" id="ops">
+  <div class="sec-head">
+    <div class="sec-icon" style="background:var(--amber-dim);">⚙️</div>
+    <div><div class="sec-label">Operations</div><div class="sec-title">Client Journey + Tech Stack</div></div>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+    <div class="card" style="flex:1;min-width:90px;text-align:center;padding:12px 8px;"><div style="font-size:16px;">📥</div><div style="font-size:10px;font-weight:700;">Order</div></div>
+    <div class="card" style="flex:1;min-width:90px;text-align:center;padding:12px 8px;"><div style="font-size:16px;">📋</div><div style="font-size:10px;font-weight:700;">Intake (24h)</div></div>
+    <div class="card" style="flex:1;min-width:90px;text-align:center;padding:12px 8px;"><div style="font-size:16px;">🚀</div><div style="font-size:10px;font-weight:700;">Kickoff (48h)</div></div>
+    <div class="card" style="flex:1;min-width:90px;text-align:center;padding:12px 8px;"><div style="font-size:16px;">🔨</div><div style="font-size:10px;font-weight:700;">Production</div></div>
+    <div class="card" style="flex:1;min-width:90px;text-align:center;padding:12px 8px;"><div style="font-size:16px;">✅</div><div style="font-size:10px;font-weight:700;">QC (Luis)</div></div>
+    <div class="card" style="flex:1;min-width:90px;text-align:center;padding:12px 8px;"><div style="font-size:16px;">📦</div><div style="font-size:10px;font-weight:700;">Delivery</div></div>
+    <div class="card" style="flex:1;min-width:90px;text-align:center;padding:12px 8px;"><div style="font-size:16px;">🔄</div><div style="font-size:10px;font-weight:700;">Upsell</div></div>
+  </div>
+  <div class="g2">
+    <div class="tw"><table>
+      <thead><tr><th>Function</th><th>Tool</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>Client Portal</td><td>SPP.co + Stripe</td><td>$129/mo</td></tr>
+        <tr><td>Project Mgmt</td><td>Monday.com or Asana</td><td>TBD</td></tr>
+        <tr><td>CRM</td><td>HubSpot</td><td>Free</td></tr>
+        <tr><td>Comms</td><td>Slack + SPP.co</td><td>Free</td></tr>
+      </tbody>
+    </table></div>
+    <div class="card">
+      <h4>Cash Flow Rules</h4>
+      <p><strong style="color:var(--text);">One-time:</strong> 50% upfront, 50% on delivery.<br>
+      <strong style="color:var(--text);">Recurring:</strong> Monthly in advance.<br>
+      <strong style="color:var(--rose);">Chase Day 1.</strong> Pause at 15 days. No exceptions.<br>
+      <strong style="color:var(--amber);">3+ months runway</strong> at all times.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 8. FINANCIALS -->
+<div class="sec" id="financials">
+  <div class="sec-head">
+    <div class="sec-icon" style="background:var(--green-dim);">💰</div>
+    <div><div class="sec-label">Financials</div><div class="sec-title">Revenue Targets & KPIs</div></div>
+  </div>
+  <div class="g4" style="margin-bottom:14px;">
+    <div class="stat" style="border-top:3px solid var(--green);"><div class="stat-l">Wk 1-4</div><div class="stat-v" style="font-size:18px;">First $</div><div class="stat-s">5-10 clients</div></div>
+    <div class="stat" style="border-top:3px solid var(--blue);"><div class="stat-l">Mo 2-3</div><div class="stat-v" style="font-size:18px;">30K+</div><div class="stat-s">10-15 clients, 3+ recurring</div></div>
+    <div class="stat" style="border-top:3px solid var(--violet);"><div class="stat-l">Mo 4-6</div><div class="stat-v" style="font-size:18px;">60K+</div><div class="stat-s">10+ recurring, cash+</div></div>
+    <div class="stat" style="border-top:3px solid var(--gold);"><div class="stat-l">Mo 7-12</div><div class="stat-v" style="font-size:18px;">150K+</div><div class="stat-s">50%+ recurring, semi-passive</div></div>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Metric</th><th style="color:var(--green);">Target</th><th style="color:var(--rose);">Red Flag</th></tr></thead>
+      <tbody>
+        <tr><td>Gross Margin</td><td>&gt;75%</td><td>&lt;70%</td></tr>
+        <tr><td>CAC</td><td>&lt;AED 2,500</td><td>&gt;AED 4,000</td></tr>
+        <tr><td>LTV:CAC</td><td>&gt;3:1</td><td>&lt;2:1</td></tr>
+        <tr><td>Close Rate</td><td>30-60%</td><td>&lt;20% or &gt;70%</td></tr>
+        <tr><td>New Clients</td><td>4-6/month</td><td>&lt;2/month</td></tr>
+        <tr><td>Delivery On-Time</td><td>&gt;90%</td><td>&lt;80%</td></tr>
+        <tr><td>Cash Runway</td><td>3+ months</td><td>&lt;2 months</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 9. ROADMAP + MILESTONES -->
+<div class="sec" id="roadmap">
+  <div class="sec-head">
+    <div class="sec-icon" style="background:var(--violet-dim);">🗺️</div>
+    <div><div class="sec-label">Roadmap & Milestones</div><div class="sec-title">Four Phases to AED 150K/month</div></div>
+  </div>
+  <div class="g4" style="margin-bottom:14px;">
+    <div class="card" style="border-top:3px solid var(--green);">
+      <span class="tag t-green">Phase 1</span><h4 style="margin-top:6px;">Foundation</h4><p>Weeks 1-4. SPP.co live, brand + website, SOPs, 50-person outreach, first partnerships.</p>
+      <p style="color:var(--gold);margin-top:8px;font-size:11px;"><strong>Exit:</strong> Platform Day 7. Client Day 14. 5+ by Day 30.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--blue);">
+      <span class="tag t-blue">Phase 2</span><h4 style="margin-top:6px;">Validation</h4><p>Months 2-3. 10-15 clients, optimise sales, 3 case studies, 2-3 partnerships, content launch.</p>
+      <p style="color:var(--gold);margin-top:8px;font-size:11px;"><strong>Exit:</strong> AED 30K+. 80%+ satisfaction. 3+ recurring.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--violet);">
+      <span class="tag t-violet">Phase 3</span><h4 style="margin-top:6px;">Growth</h4><p>Months 4-6. Scale channels, paid ads, expand services, price optimise, recurring &gt;30%.</p>
+      <p style="color:var(--gold);margin-top:8px;font-size:11px;"><strong>Exit:</strong> AED 60K+. 10+ recurring. CAC &lt;2,500.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--gold);">
+      <span class="tag t-gold">Phase 4</span><h4 style="margin-top:6px;">Scale</h4><p>Months 7-12. Hire sales, systematise, evaluate GCC + Australia, exit optionality.</p>
+      <p style="color:var(--gold);margin-top:8px;font-size:11px;"><strong>Exit:</strong> AED 150K+. Runs 2+ wks alone. Path to 300K.</p>
+    </div>
+  </div>
+  <div class="miles">
+    <div class="m-item"><div class="mt">Wk 2</div><div class="ml" style="color:var(--green);">First $</div></div>
+    <div class="m-item"><div class="mt">Mo 2</div><div class="ml" style="color:var(--blue);">PMF</div></div>
+    <div class="m-item"><div class="mt">Mo 2</div><div class="ml" style="color:var(--cyan);">Break-Even</div></div>
+    <div class="m-item"><div class="mt">Mo 4</div><div class="ml" style="color:var(--violet);">10+ Recurring</div></div>
+    <div class="m-item"><div class="mt">Mo 6</div><div class="ml" style="color:var(--amber);">30K Profit</div></div>
+    <div class="m-item"><div class="mt">Mo 9</div><div class="ml" style="color:var(--gold);">100K Rev</div></div>
+    <div class="m-item"><div class="mt">Mo 12</div><div class="ml" style="color:var(--rose);">150K Rev</div></div>
+    <div class="m-item"><div class="mt">Mo 12</div><div class="ml" style="color:var(--green);">Semi-Passive</div></div>
+  </div>
+  <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;"><strong style="color:var(--gold);">Expansion:</strong> Dubai → GCC (Saudi, Qatar, Bahrain) → Global. Each phase unlocked when previous is profitable.</p>
+</div>
+
+<!-- 10. PRINCIPLES + RED FLAGS -->
+<div class="sec" id="principles">
+  <div class="sec-head">
+    <div class="sec-icon" style="background:var(--gold-dim);">⭐</div>
+    <div><div class="sec-label">Principles & Red Flags</div><div class="sec-title">Rules to Live By + Warning Signs</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <h4 style="color:var(--gold);margin-bottom:10px;">8 Guiding Principles</h4>
+      <p><strong>1.</strong> Revenue solves most problems.<br>
+      <strong>2.</strong> Speed beats perfection.<br>
+      <strong>3.</strong> Constraints are features.<br>
+      <strong>4.</strong> Feedback is free consulting.<br>
+      <strong>5.</strong> Network is net worth.<br>
+      <strong>6.</strong> Document or die.<br>
+      <strong>7.</strong> Cash is oxygen (3+ months runway).<br>
+      <strong>8.</strong> Founders set the pace.</p>
+      <div style="margin-top:12px;padding:10px;background:rgba(201,168,76,.05);border-radius:6px;">
+        <p style="color:var(--gold);font-size:11px;"><strong>30-Day Coma Test:</strong> Could this run 30 days without founders? Passes → scale. Fails → fix or accept. Goal: core ops pass by Month 12.</p>
+      </div>
+    </div>
+    <div class="card">
+      <h4 style="color:var(--rose);margin-bottom:10px;">Red Flags</h4>
+      <p><strong style="color:var(--text);">Sales:</strong> No new conversations, proposals without follow-up, discounting before selling value, "too busy with delivery."</p>
+      <p style="margin-top:8px;"><strong style="color:var(--text);">Delivery:</strong> Missed deadlines normalised, multiple revision rounds, Luis reviewing everything manually, Ravi waiting for direction.</p>
+      <p style="margin-top:8px;"><strong style="color:var(--text);">Financial:</strong> Revenue flat 2+ months, margin shrinking, overdue invoices growing, spending before profitable.</p>
+      <p style="margin-top:8px;"><strong style="color:var(--text);">Founder:</strong> One person doing 80%, avoiding hard conversations, building tools instead of selling.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 11. TO-DO LIST -->
+<div class="sec" id="todo">
+  <div class="sec-head">
+    <div class="sec-icon" style="background:var(--rose-dim);">📝</div>
+    <div><div class="sec-label">Master To-Do List</div><div class="sec-title">Ordered by Delivery Deadline</div></div>
+  </div>
+
+  <div class="todo-phase">Day 3 <span class="ln"></span></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">Decide: Monday.com vs. Asana</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Day 3</span></div></div>
+
+  <div class="todo-phase">Week 1 <span class="ln"></span></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">Finalise agency brand identity (Hugmind)</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Week 1</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">Set up payment terms and contract templates</div><div class="t-meta"><span class="t-owner">Damian</span><span class="t-dead">Week 1</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">Decide: Film production — Day 1 or Phase 2?</div><div class="t-meta"><span class="t-owner">Luis</span><span class="t-dead">Week 1</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">List 50 network contacts who could buy or refer</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Week 1</span></div></div>
+
+  <div class="todo-phase">Day 7 <span class="ln"></span></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">SPP.co live — all packages configured, Stripe payments active</div><div class="t-meta"><span class="t-owner">Damian</span><span class="t-dead">Day 7</span></div></div>
+
+  <div class="todo-phase">Week 2 <span class="ln"></span></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">Formalise agreement with The Finch (Ravi)</div><div class="t-meta"><span class="t-owner">Damian</span><span class="t-dead">Week 2</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">Launch network outreach — personal messages to 50 contacts</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Week 2</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">Set up HubSpot CRM with pipeline stages</div><div class="t-meta"><span class="t-owner">Damian</span><span class="t-dead">Week 2</span></div></div>
+
+  <div class="todo-phase">Day 14 <span class="ln"></span></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">SOPs documented for each service offering</div><div class="t-meta"><span class="t-owner">Luis + Ravi</span><span class="t-dead">Day 14</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">First paying client acquired</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Day 14</span></div></div>
+
+  <div class="todo-phase">Week 3 <span class="ln"></span></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">Define lead magnet content per industry</div><div class="t-meta"><span class="t-owner">Damian</span><span class="t-dead">Week 3</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">Agency website + industry landing pages live</div><div class="t-meta"><span class="t-owner">Luis + Ravi</span><span class="t-dead">Week 3</span></div></div>
+
+  <div class="todo-phase">Day 30 — End of Phase 1 <span class="ln"></span></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">5+ paying clients, zero delivery failures</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Day 30</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">Partnership conversations with 3-5 formation providers</div><div class="t-meta"><span class="t-owner">Damian</span><span class="t-dead">Day 30</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">LinkedIn posting 3x/week started (both founders)</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Day 30</span></div></div>
+
+  <div class="todo-phase">Month 3 — End of Phase 2 <span class="ln"></span></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">10-15 additional clients closed</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Month 3</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">3 case studies with measurable results</div><div class="t-meta"><span class="t-owner">Luis</span><span class="t-dead">Month 3</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">2-3 active referral partnerships</div><div class="t-meta"><span class="t-owner">Damian</span><span class="t-dead">Month 3</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">AED 30K+ monthly revenue, 3+ recurring clients</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Month 3</span></div></div>
+
+  <div class="todo-phase">Month 6 — End of Phase 3 <span class="ln"></span></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">AED 60K+ revenue, 10+ recurring clients</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Month 6</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">Luis handling 90% delivery, 50 organic leads/mo</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Month 6</span></div></div>
+
+  <div class="todo-phase">Month 12 — End of Phase 4 <span class="ln"></span></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">AED 150K+ revenue, 50%+ recurring</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Month 12</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">Business runs 2+ weeks without founders</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Month 12</span></div></div>
+  <div class="todo-item" onclick="this.classList.toggle('done');this.querySelector('.chk').classList.toggle('on');"><div class="chk"></div><div class="t-text">GCC + Australia expansion evaluated, path to 300K identified</div><div class="t-meta"><span class="t-owner">Both</span><span class="t-dead">Month 12</span></div></div>
+
+</div>
+
+</div>
+
+<div class="footer">
+  <p style="color:var(--gold);font-weight:700;font-size:14px;margin-bottom:4px;">HUGMIND</p>
+  <p>Dubai · Business Plan Dashboard · March 2026</p>
+</div>
+
+</body>
+</html>
